@@ -77,29 +77,6 @@ This application consists of two main components:
 
 2. **Python MCP Server** (`whatsapp-mcp-server/`): A Python server implementing the Model Context Protocol (MCP), which provides standardized tools for Claude to interact with WhatsApp data and send/receive messages.
 
-### WhatsApp Bridge (Go)
-
-The Go application:
-
-- Handles WhatsApp authentication via QR code scanning
-- Maintains a persistent connection to WhatsApp's servers
-- Processes incoming and outgoing messages
-- Stores all chat and message data in a SQLite database (`store/messages.db`)
-- Provides endpoints for the Python MCP server to query and send messages
-
-### MCP Server (Python)
-
-The Python server:
-
-- Implements the MCP protocol for Claude integration
-- Provides standardized tools for Claude to:
-  - Search contacts
-  - List messages and chats
-  - Retrieve message context
-  - Send messages
-- Communicates with the Go bridge to access WhatsApp data
-- Handles data formatting and presentation for Claude
-
 ### Data Storage
 
 - All message history is stored in a SQLite database within the `whatsapp-bridge/store/` directory
@@ -126,19 +103,9 @@ Claude can access the following tools to interact with WhatsApp:
 
 ## Technical Details
 
-### Starting the Service
-
-The application starts both components via the `start.sh` script:
-
-1. The Go bridge launches and connects to WhatsApp
-2. The Python MCP server starts and connects to the Go bridge
-3. Claude Desktop connects to the MCP server via the configuration
-
-### Communication Flow
-
 1. Claude sends requests to the Python MCP server
-2. The MCP server queries the Go bridge for WhatsApp data
-3. The Go bridge accesses the SQLite database or the WhatsApp API
+2. The MCP server queries the Go bridge for WhatsApp data or directly to the SQLite database
+3. The Go accesses the WhatsApp API and keeps the SQLite database up to date
 4. Data flows back through the chain to Claude
 5. When sending messages, the request flows from Claude through the MCP server to the Go bridge and to WhatsApp
 
