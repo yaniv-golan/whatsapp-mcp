@@ -1,6 +1,6 @@
 # WhatsApp MCP
 
-A WhatsApp Multi-Client Protocol (MCP) server for WhatsApp.
+This is an Multi-Client Protocol (MCP) server for WhatsApp.
 
 With this you can search you Whatsapp messages, search your contacts and send messages.
 
