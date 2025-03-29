@@ -9,7 +9,7 @@ A WhatsApp Multi-Client Protocol (MCP) server for integrating WhatsApp with Anth
 - Go
 - Python 3.6+
 - Anthropic Claude Desktop app
-- UV (Python package manager) using `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- UV (Python package manager), install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ### Steps
 
@@ -37,14 +37,26 @@ A WhatsApp Multi-Client Protocol (MCP) server for integrating WhatsApp with Anth
 
    Copy the `claude_desktop_config.example.json` file with your updated path to the WhatsApp MCP server to your Claude Desktop configuration directory at:
 
+   ```json
+   {
+     "mcpServers": {
+       "whatsapp": {
+         "command": "{{PATH}}/.local/bin/uv",
+         "args": [
+           "--directory",
+           "{{PATH}}/whatsapp-mcp/whatsapp-mcp-server",
+           "run",
+           "main.py"
+         ]
+       }
+     }
+   }
+   ```
+
+   Save this as `claude_desktop_config.json` in your Claude Desktop configuration directory at:
+
    ```
    ~/Library/Application Support/Claude/claude_desktop_config.json
-   ```
-
-   Make sure the script is executable:
-
-   ```bash
-   chmod +x ~/dev/whatsapp-mcp/start.sh
    ```
 
 4. **Restart Claude Desktop**
