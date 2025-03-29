@@ -1,6 +1,12 @@
 # WhatsApp MCP
 
-A WhatsApp Multi-Client Protocol (MCP) server for integrating WhatsApp with Anthropic's Claude.
+A WhatsApp Multi-Client Protocol (MCP) server for WhatsApp.
+
+With this you can search you Whatsapp messages, search your contacts and send messages.
+
+Here's an example of what you can do when it's connected to Claude.
+
+![WhatsApp MCP](./claude_example.png)
 
 ## Installation
 
@@ -33,7 +39,7 @@ A WhatsApp Multi-Client Protocol (MCP) server for integrating WhatsApp with Anth
 
    After approximately 20 days, you will might need to re-authenticate.
 
-3. **Connect to Anthropic Claude**
+3. **Connect to Anthropic Claude (optional)**
 
    Copy the `claude_desktop_config.example.json` file with your updated path to the WhatsApp MCP server to your Claude Desktop configuration directory at:
 
