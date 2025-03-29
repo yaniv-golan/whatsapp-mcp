@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -9,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -380,26 +378,17 @@ func main() {
 	
 	fmt.Println("\n✓ Connected to WhatsApp! Type 'help' for commands.")
 	
-	// Set up termination signal handling
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	
-	// Create a channel to allow the command loop to signal termination
-	quit := make(chan bool)
-	
-	// Start command processor in a goroutine
-	// go processCommands(client, messageStore, quit)
-	
 	// Start REST API server
 	startRESTServer(client, 8080)
 	
-	// Wait for either termination signal or quit command
-	select {
-	case <-c:
-		fmt.Println("\nReceived interrupt signal")
-	case <-quit:
-		fmt.Println("\nReceived quit command")
-	}
+	// Create a channel to keep the main goroutine alive
+	exitChan := make(chan os.Signal, 1)
+	signal.Notify(exitChan, syscall.SIGINT, syscall.SIGTERM)
+	
+	fmt.Println("REST server is running. Press Ctrl+C to disconnect and exit.")
+	
+	// Wait for termination signal
+	<-exitChan
 	
 	fmt.Println("Disconnecting...")
 	// Disconnect client
@@ -612,142 +601,3 @@ func requestHistorySync(client *whatsmeow.Client) {
 		fmt.Println("History sync requested. Waiting for server response...")
 	}
 }
-
-// Process user commands from terminal
-func processCommands(client *whatsmeow.Client, messageStore *MessageStore, quit chan bool) {
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("WhatsApp client is running. Type 'help' for commands...")
-	
-	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
-			break
-		}
-		
-		input := scanner.Text()
-		args := strings.Fields(input)
-		
-		if len(args) == 0 {
-			continue
-		}
-		
-		cmd := strings.ToLower(args[0])
-		
-		switch cmd {
-		case "help":
-			fmt.Println("Available commands:")
-			fmt.Println("  help                         - Show this help")
-			fmt.Println("  send <phone> <msg>           - Send a message to a specific number")
-			fmt.Println("  query <phone> [count]        - Query messages from a specific number")
-			fmt.Println("  listchats                    - List all your chats")
-			fmt.Println("  status                       - Show connection status")
-			fmt.Println("  quit                         - Exit the program")
-			fmt.Println("Examples:")
-			fmt.Println("  send 1234567890 Hello there!")
-			
-		case "status":
-			if client == nil {
-				fmt.Println("Client status: Not initialized")
-			} else {
-				fmt.Printf("Client status: %v\n", map[bool]string{true: "Connected", false: "Disconnected"}[client.IsConnected()])
-				fmt.Printf("Logged in: %v\n", client.Store.ID != nil)
-			}
-
-		case "send":
-			if len(args) < 3 {
-				fmt.Println("Usage: send <phone> <message>")
-				continue
-			}
-			
-			recipient := args[1]
-			messageText := strings.Join(args[2:], " ")
-			
-			// Use the extracted sendWhatsAppMessage function
-			success, message := sendWhatsAppMessage(client, recipient, messageText)
-			if !success {
-				fmt.Println(message)
-			} else {
-				fmt.Println(message)
-			}
-			
-		case "query":
-			if len(args) < 2 {
-				fmt.Println("Usage: query <phone> [count]")
-				continue
-			}
-			
-			recipient := args[1]
-			count := 10 // Default value
-			
-			if len(args) >= 3 {
-				_, err := fmt.Sscanf(args[2], "%d", &count)
-				if err != nil {
-					fmt.Println("Invalid count, using default (10)")
-					count = 10
-				}
-			}
-			
-			// Create JID for recipient
-			recipientJID := types.JID{
-				User:   recipient,
-				Server: "s.whatsapp.net", // For personal chats
-			}
-			
-			// Get messages from local database
-			messages, err := messageStore.GetMessages(recipientJID.String(), count)
-			if err != nil {
-				fmt.Printf("Error querying local message history: %v\n", err)
-				continue
-			}
-			
-			if len(messages) == 0 {
-				fmt.Println("No messages found in database for this contact.")
-				continue
-			}
-			
-			fmt.Printf("Retrieved %d messages from chat with %s:\n", len(messages), recipient)
-			
-			// Display messages in chronological order (oldest first)
-			for i := len(messages) - 1; i >= 0; i-- {
-				msg := messages[i]
-				
-				// Format timestamp
-				timestamp := msg.Time.Format("2006-01-02 15:04:05")
-				
-				// Direction indicator
-				direction := "←"
-				if msg.IsFromMe {
-					direction = "→"
-				}
-				
-				fmt.Printf("[%s] %s %s\n", timestamp, direction, msg.Content)
-			}
-			
-			
-		case "listchats":
-			// Get chats from local database
-			chats, err := messageStore.GetChats()
-			if err != nil {
-				fmt.Printf("Error querying local chats: %v\n", err)
-				continue
-			}
-			
-			if len(chats) == 0 {
-				fmt.Println("No chats found in local database. Try using the 'sync' command first.")
-				continue
-			}
-			
-			fmt.Printf("Chats in local database (%d):\n", len(chats))
-			for jid, lastTime := range chats {
-				fmt.Printf("  %s - Last message at: %s\n", jid, lastTime.Format("2006-01-02 15:04:05"))
-			}
-			
-		case "quit", "exit":
-			quit <- true
-			return
-			
-		default:
-			fmt.Println("Unknown command. Type 'help' for available commands.")
-		}
-	}
-} 

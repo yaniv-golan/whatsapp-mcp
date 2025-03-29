@@ -20,43 +20,22 @@ A WhatsApp Multi-Client Protocol (MCP) server for integrating WhatsApp with Anth
    cd whatsapp-mcp
    ```
 
-2. **Authenticate with WhatsApp**
+2. **Run the WhatsApp bridge**
 
-   Run the authentication script to scan a QR code and connect your WhatsApp account:
+   Navigate to the whatsapp-bridge directory and run the Go application:
 
    ```bash
-   ./authenticate.sh
+   cd whatsapp-bridge
+   go run main.go
    ```
 
-   This will show a QR code in your terminal. Scan it with your WhatsApp mobile app to authenticate. This only needs to be done once, or when your WhatsApp session expires.
+   The first time you run it, you will be prompted to scan a QR code. Scan the QR code with your WhatsApp mobile app to authenticate.
 
-   **How to authenticate:**
-
-   - Make sure your phone has an active internet connection
-   - Run `./authenticate.sh` in your terminal
-   - Open WhatsApp on your phone
-   - Tap on Settings > Linked Devices > Link a Device
-   - Point your phone's camera at the QR code displayed in the terminal
-   - Wait for confirmation that authentication is successful
-   - After authentication, it may take a few minutes to load your message history
-   - Once authenticated, you can close the terminal with Ctrl+C
+   After approximately 20 days, you will might need to re-authenticate.
 
 3. **Connect to Anthropic Claude**
 
-   Create a configuration file for Claude Desktop:
-
-   ```json
-   {
-     "mcpServers": {
-       "whatsapp": {
-         "command": "~/dev/whatsapp-mcp/start.sh",
-         "args": []
-       }
-     }
-   }
-   ```
-
-   Save this as `claude_desktop_config.json` in your Claude Desktop configuration directory at:
+   Copy the `claude_desktop_config.example.json` file with your updated path to the WhatsApp MCP server to your Claude Desktop configuration directory at:
 
    ```
    ~/Library/Application Support/Claude/claude_desktop_config.json
