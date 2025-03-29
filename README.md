@@ -1,4 +1,4 @@
-# WhatsApp MCP
+# WhatsApp MCP Server
 
 This is a Multi-Client Protocol (MCP) server for WhatsApp.
 
