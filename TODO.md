@@ -1,2 +1,2 @@
-1. Fix the search actions
-1. Add instructions for installing, running and connecting to Claude
+1. Fix the tools
+2. Create a short video and improve the README
