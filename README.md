@@ -4,6 +4,8 @@ This is an Multi-Client Protocol (MCP) server for WhatsApp.
 
 With this you can search you Whatsapp messages, search your contacts and send messages.
 
+It connects to your **personal WhatsApp account** through an unofficial API (NOT the WhatsApp Business account via the API), powered by [whatsmeow](https://github.com/tulir/whatsmeow). All your messages are stored locally in a SQLite database and only sent to an LLM (such as Claude) when the agent accesses them through tools.
+
 Here's an example of what you can do when it's connected to Claude.
 
 ![WhatsApp MCP](./claude_example.png)
